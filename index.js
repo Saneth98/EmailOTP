@@ -26,8 +26,6 @@ class EmailOTPModule {
 
     /**
      * Generate the 6 digits Otp for the email
-     * If the email is a valid then the sysytem will create a realine interface 
-     * to check the OTP Validation
      * @param {User Email} email 
      * @returns 
      */
