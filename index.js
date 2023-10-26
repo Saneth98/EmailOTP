@@ -1,5 +1,6 @@
 
 const readline = require("readline");
+const crypto = require('crypto');
 
 class EmailOTPModule {
 
@@ -20,8 +21,16 @@ class EmailOTPModule {
     }
 
     close() {
-        this.otp = '';
         console.log('Close')
+    }
+
+    /**
+     * Creating random numbers from 1 to 999999
+     * with the length of 6
+     * @returns 
+     */
+    generateRandomSixDigitNumber() {
+        return crypto.randomInt(0, 999999).toString().padStart(6, '0')
     }
 
     /**
@@ -31,11 +40,11 @@ class EmailOTPModule {
      */
     generateOTPEmail(email) {
         // Check the email is valid
-        if (!email.endsWith('dso.org.sg')) {
+        if (!email.endsWith('.dso.org.sg')) {
             return this.STATUS_EMAIL_INVALID;
         }
 
-        this.otp = Math.floor(100000 + Math.random() * 900000);
+        this.otp = this.generateRandomSixDigitNumber();
         const message = `You OTP Code is ${this.otp}. The code is valid for 1 minute`; //Response Body
 
         // Returnt the status of the Email
@@ -44,6 +53,8 @@ class EmailOTPModule {
 
     /**
      * Send the email to user if there are no errors
+     * Assuming there is a function to send the mail and get the response
+     * OK or Failed
      * @param {User Email} email 
      * @param {Response Body} message 
      * @returns 
@@ -68,7 +79,7 @@ class EmailOTPModule {
             // Time out in one minute after a otp is generated
             setTimeout(() => {
                 console.log(this.STATUS_OTP_TIMEOUT);
-                reject(true)
+                reject()
                 return
             }, 60000);
 
@@ -78,7 +89,7 @@ class EmailOTPModule {
                 // Check for the attempts
                 if (attaempts >= 10) {
                     console.log(this.STATUS_OTP_ATTEMPTS_REACHED);
-                    reject(true)
+                    reject()
                     return
                 }
 
@@ -91,7 +102,7 @@ class EmailOTPModule {
                         // If Correct OTP is entered then returns
                         if (this.otp == userOTP) {
                             console.log(this.STATUS_OTP_OK);
-                            resolve(true)
+                            resolve()
                             return
                         }
 
@@ -120,7 +131,7 @@ class EmailOTPModule {
 };
 
 const emailModule = new EmailOTPModule();
-const emailStatus = emailModule.generateOTPEmail('abc@dso.org.sg');
+const emailStatus = emailModule.generateOTPEmail('abc@domain.dso.org.sg');
 if (emailStatus == emailModule.STATUS_EMAIL_OK) {
     emailModule.createInputListner();
 }
